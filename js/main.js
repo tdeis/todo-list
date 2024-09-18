@@ -39,7 +39,11 @@ const loadListObject = () => {
   if (typeof storedList !== "string") return;
   const parsedList = JSON.parse(storedList);
   parsedList.forEach((itemObj) => {
-    const newToDoItem = createNewItem(itemObj._id, itemObj._item);
+    const newToDoItem = createNewItem(
+      itemObj._id,
+      itemObj._item,
+      itemObj._price
+    );
     toDoList.addItemToList(newToDoItem);
   });
 };
@@ -48,7 +52,9 @@ const refreshThePage = () => {
   clearListDisplay();
   renderList();
   clearItemEntryField();
+  clearItemPriceField();
   setFocusOnItemEntry();
+  calcTotal();
 };
 
 const clearListDisplay = () => {
@@ -116,6 +122,10 @@ const clearItemEntryField = () => {
   document.getElementById("newItem").value = "";
 };
 
+const clearItemPriceField = () => {
+  document.getElementById("newPrice").value = "";
+};
+
 const setFocusOnItemEntry = () => {
   document.getElementById("newItem").focus();
 };
@@ -123,8 +133,10 @@ const setFocusOnItemEntry = () => {
 const processSubmission = () => {
   const newEntryText = getNewEntry();
   if (!newEntryText.length) return;
+  const newEntryPrice = getNewPrice();
+  if (!newEntryPrice.length) return;
   const nextItemId = calcNextItemId();
-  const toDoItem = createNewItem(nextItemId, newEntryText);
+  const toDoItem = createNewItem(nextItemId, newEntryText, newEntryPrice);
   toDoList.addItemToList(toDoItem);
   updatePersistentData(toDoList.getList());
   updateScreenReaderConfirmation(newEntryText, "added");
@@ -133,6 +145,10 @@ const processSubmission = () => {
 
 const getNewEntry = () => {
   return document.getElementById("newItem").value.trim();
+};
+
+const getNewPrice = () => {
+  return document.getElementById("newPrice").value.trim();
 };
 
 const calcNextItemId = () => {
@@ -144,10 +160,11 @@ const calcNextItemId = () => {
   return nextItemId;
 };
 
-const createNewItem = (itemId, itemText) => {
+const createNewItem = (itemId, itemText, itemPrice) => {
   const toDo = new ToDoItem();
   toDo.setId(itemId);
   toDo.setItem(itemText);
+  toDo.setPrice(itemPrice);
   return toDo;
 };
 
@@ -155,4 +172,15 @@ const updateScreenReaderConfirmation = (newEntryText, actionVerb) => {
   document.getElementById(
     "confirmation"
   ).textContent = `${newEntryText} ${actionVerb}.`;
+};
+
+const calcTotal = () => {
+  const list = toDoList.getList();
+  const totalEl = document.getElementById("total");
+  let total = 0;
+  list.forEach((item) => {
+    total += parseFloat(item._price);
+  });
+  total = total.toFixed(2);
+  totalEl.textContent = `Total: $${total}`;
 };

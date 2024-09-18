@@ -2,6 +2,7 @@ export default class ToDoItem {
   constructor() {
     this._id = null;
     this._item = null;
+    this._price = null;
   }
 
   getId() {
@@ -13,10 +14,14 @@ export default class ToDoItem {
   }
 
   getItem() {
-    return this._item;
+    return `${this._item} -> ${this._price}`;
   }
 
   setItem(item) {
     this._item = item;
+  }
+
+  setPrice(price) {
+    this._price = price;
   }
 }
